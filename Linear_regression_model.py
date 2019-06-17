@@ -46,7 +46,7 @@ acceleration      = Result_data['acceleration']
 # 2) Modèle de régression linéaire
 label_1 = direction
 label_2 = acceleration
-features_test = Result_data.drop('direction', axis=1)
+features_test = Result_data.drop('direction', axis=1)    
 
 # Modèle de régression linéaire
 regr_1 = linear_model.LinearRegression()
@@ -58,6 +58,7 @@ regr_2.fit(features_test,label_2)
 #plt.scatter(acceleration, direction)
 #plt.show()
 
+# sauvegarde du modèle
 pickle.dump(regr_1, open(path_model_1, "wb"))
 model_1 = pickle.load(open(path_model_1, 'rb'))
 
