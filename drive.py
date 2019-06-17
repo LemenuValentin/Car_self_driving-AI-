@@ -54,12 +54,12 @@ def telemetry(sid, data):
         index = [90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100]
         Array_distanceleft = []
         Array_distanceright = []
-
+        # Calcule des distances par rapport aux bords droit et gauche de la route
         for n in index:
-            pixels = np.argwhere(edges[n] == 255)  # Recherche le blanc (255) dans l'image
+            pixels = np.argwhere(edges[n] == 255) 
             if len(pixels[pixels < 160]) != 0:
                 pixelsleft = pixels[pixels < 160]
-                leftdetection = pixelsleft[len(pixelsleft) - 1]  # calcule la position moyenne de l'edge à gauche
+                leftdetection = pixelsleft[len(pixelsleft) - 1] 
                 distanceleft = 160 - leftdetection
                 Array_distanceleft.append(distanceleft)
             if len(pixels[pixels > 160]) != 0:
@@ -68,29 +68,19 @@ def telemetry(sid, data):
                 distanceright = rightdetection - 160
                 Array_distanceright.append(distanceright)
 
-        #if len(Array_distanceright) != 0 and len(Array_distanceleft) != 0:
-            #print(max(Array_distanceleft) - min(Array_distanceleft))
-        print(Array_distanceleft)
-        print(len(Array_distanceleft))
-        print(Array_distanceright)
-        print(len(Array_distanceright))
-
         if (len(Array_distanceleft)) != 0:
             DistanceToLeft = np.median(Array_distanceleft)
         else:
             DistanceToLeft = 1000
-        #print('Distance gauche = ',DistanceToLeft)
 
         if (len(Array_distanceright)) != 0:
             DistanceToRight = np.median(Array_distanceright)
         else:
             DistanceToRight = 1000
-        #print('Distance gauche = ', DistanceToLeft)
-        #print('Distance droite = ', DistanceToRight)
 
+        # si les bords ne sont pas détectable dans la première zone, on va calculer dans la seconde zone
         if (len(Array_distanceleft)) != 0 and (len(Array_distanceright)) != 0:
             if (min(Array_distanceleft) < 50 and min(Array_distanceright) < 50):
-                print('OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO')
                 index2 = [75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85]
                 Array_distanceleft2 = []
                 Array_distanceright2 = []
@@ -121,9 +111,7 @@ def telemetry(sid, data):
                 DistanceToLeft = np.median(Array_distanceleft)
                 DistanceToRight = np.median(Array_distanceright)
 
-        #print('ArrayLeft', Array_distanceright)
         #print('DLeft',DistanceToLeft)
-        #print('ArrayRight', Array_distanceright)
         #print('DRight',DistanceToRight)
 
         # Use your model to compute steering and throttle
@@ -131,9 +119,14 @@ def telemetry(sid, data):
         steer = steer[0]
         #print(steer)
         #steer = 0              # Direction
-        throttle = 0.5                      # Accélération
+        #throttle = 0.5                      # Accélération
         speed = 1                           # Speed
         print(steer)
+        # post-processing : ralenti la voiture lorsqu'on tourne fort
+        if steer > 0.05 or steer < -0.05:
+            throttle = 0
+        else:
+            throttle = 1
         #print(DistanceToLeft)
         #print(DistanceToRight)
         # response to the simulator with a steer angle and throttle
